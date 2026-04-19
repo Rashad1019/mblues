@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Memphis Became Memphis — An I Knot Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&family=Space+Mono:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ─────────────────────────────────────────
+   DESIGN TOKENS
+   ───────────────────────────────────────── */
+:root {
+  --bg:           #080705;
+  --bg-lift:      #0e0d0a;
+  --cream:        #e2d6be;
+  --cream-dim:    #7e7264;
+  --red:          #b02c22;
+  --red-bright:   #cc3728;
+  --red-glow:     rgba(176,44,34,0.35);
+  --gold:         #c09030;
+  --gold-dim:     #6b5018;
+  --green-hope:   #3a7f4a;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'Crimson Pro', Georgia, serif;
+  --font-mono:    'Space Mono', 'Courier New', monospace;
+
+  --thread-w:     72px;
+  --content-max:  720px;
+  --pad-section:  120px;
+  --pad-h:        80px;
+  --thread-pct:   0%;
+}
+
+/* ─────────────────────────────────────────
+   RESET & BASE
+   ───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.82;
+  overflow-x: hidden;
+}
+
+/* ─────────────────────────────────────────
+   TOPO UNDERLAY
+   ───────────────────────────────────────── */
+.topo-layer {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Cpath d='M0,200 Q90,170 180,200 Q270,230 360,198 Q450,168 600,200' fill='none' stroke='rgba(180,150,80,0.055)' stroke-width='1'/%3E%3Cpath d='M0,155 Q100,128 200,158 Q300,186 400,155 Q500,126 600,155' fill='none' stroke='rgba(180,150,80,0.038)' stroke-width='1'/%3E%3Cpath d='M0,245 Q110,218 220,248 Q330,276 440,244 Q520,220 600,245' fill='none' stroke='rgba(180,150,80,0.038)' stroke-width='1'/%3E%3Cpath d='M0,110 Q120,88 240,114 Q360,140 480,110 Q540,96 600,110' fill='none' stroke='rgba(180,150,80,0.024)' stroke-width='0.75'/%3E%3Cpath d='M0,290 Q130,267 260,292 Q390,316 480,285 Q540,270 600,290' fill='none' stroke='rgba(180,150,80,0.024)' stroke-width='0.75'/%3E%3C/svg%3E");
+}
+
+/* ─────────────────────────────────────────
+   THREAD RAIL
+   ───────────────────────────────────────── */
+.thread-rail {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: var(--thread-w);
+  z-index: 300; pointer-events: none;
+}
+.thread-track {
+  position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 1px; transform: translateX(-50%);
+  background: rgba(176,44,34,0.1);
+}
+.thread-fill {
+  position: absolute; left: 50%; top: 0;
+  width: 1.5px; transform: translateX(-50%);
+  height: var(--thread-pct);
+  background: linear-gradient(to bottom, var(--red), var(--red-bright));
+  box-shadow: 0 0 10px var(--red-glow);
+  transition: height 60ms linear;
+}
+.thread-knot {
+  position: absolute; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--bg);
+  border: 1.5px solid rgba(176,44,34,0.25);
+  cursor: pointer; pointer-events: all;
+  transition: all 0.3s ease;
+}
+.thread-knot.lit {
+  background: var(--red-bright);
+  border-color: var(--red-bright);
+  box-shadow: 0 0 14px var(--red-glow);
+  width: 9px; height: 9px;
+}
+.thread-knot::after {
+  content: attr(data-label);
+  position: absolute; left: 16px; top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: var(--font-mono); font-size: 0.58rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--red-bright); opacity: 0;
+  transition: opacity 0.2s; pointer-events: none;
+}
+.thread-knot:hover::after { opacity: 1; }
+
+/* ─────────────────────────────────────────
+   LAYOUT
+   ───────────────────────────────────────── */
+main { position: relative; z-index: 1; padding-left: var(--thread-w); }
+.section { position: relative; padding: var(--pad-section) var(--pad-h); }
+.section-inner { max-width: var(--content-max); margin: 0 auto; position: relative; }
+
+/* ─────────────────────────────────────────
+   CHAPTER TYPOGRAPHY
+   ───────────────────────────────────────── */
+.ch-meta { display: flex; align-items: baseline; gap: 18px; margin-bottom: 16px; }
+.ch-num {
+  font-family: var(--font-mono); font-size: 0.6rem;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--red-bright);
+}
+.ch-era {
+  font-family: var(--font-mono); font-size: 0.6rem;
+  letter-spacing: 0.14em; color: var(--cream-dim);
+}
+.ch-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 4vw, 3.5rem);
+  font-weight: 900; line-height: 1.08;
+  letter-spacing: -0.025em; color: var(--cream);
+  margin-bottom: 44px;
+}
+.ch-ghost {
+  position: absolute; right: -16px; top: -20px;
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 14vw, 14rem);
+  font-weight: 900; line-height: 1;
+  color: rgba(255,255,255,0.02);
+  letter-spacing: -0.05em;
+  pointer-events: none; user-select: none;
+}
+
+/* ─────────────────────────────────────────
+   PROSE
+   ───────────────────────────────────────── */
+.prose {
+  font-family: var(--font-body); font-size: 1.08rem;
+  line-height: 1.85; color: var(--cream); max-width: 640px;
+}
+.prose p + p { margin-top: 1.15em; }
+.prose strong { color: var(--cream); font-weight: 600; }
+.prose em { font-style: italic; }
+
+.pull {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2.4vw, 1.9rem);
+  font-style: italic; font-weight: 700; line-height: 1.35;
+  color: var(--cream);
+  margin: 52px 0; padding-left: 24px;
+  border-left: 1.5px solid var(--red); max-width: 560px;
+}
+.pull cite {
+  display: block; font-family: var(--font-mono);
+  font-size: 0.6rem; font-style: normal;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--red-bright); margin-top: 12px;
+}
+.rule { width: 36px; height: 1px; background: var(--red); margin: 40px 0; }
+
+/* ─────────────────────────────────────────
+   STATS
+   ───────────────────────────────────────── */
+.stats { display: flex; gap: 44px; flex-wrap: wrap; margin: 48px 0; }
+.stat { display: flex; flex-direction: column; }
+.stat-n {
+  font-family: var(--font-mono);
+  font-size: clamp(1.8rem, 4vw, 3.2rem);
+  font-weight: 700; color: var(--red-bright);
+  line-height: 1; letter-spacing: -0.03em;
+}
+.stat-n.gold { color: var(--gold); }
+.stat-n.green { color: var(--green-hope); }
+.stat-l {
+  font-family: var(--font-mono); font-size: 0.58rem;
+  text-transform: uppercase; letter-spacing: 0.13em;
+  color: var(--cream-dim); margin-top: 7px;
+  max-width: 160px; line-height: 1.5;
+}
+
+/* ─────────────────────────────────────────
+   TABLE
+   ───────────────────────────────────────── */
+.data-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.73rem; margin: 40px 0; }
+.data-table th {
+  text-align: left; text-transform: uppercase;
+  letter-spacing: 0.1em; font-size: 0.57rem; color: var(--red-bright);
+  border-bottom: 1px solid rgba(176,44,34,0.3); padding: 0 16px 9px 0;
+}
+.data-table td { padding: 10px 16px 10px 0; color: var(--cream); border-bottom: 1px solid rgba(255,255,255,0.038); vertical-align: top; }
+.data-table td.n { color: var(--red-bright); font-weight: 700; }
+.data-table td.z { color: var(--gold-dim); font-weight: 700; }
+
+/* ─────────────────────────────────────────
+   IMPACTS LIST (Yellow Fever)
+   ───────────────────────────────────────── */
+.impacts { list-style: none; margin: 40px 0; display: flex; flex-direction: column; gap: 20px; }
+.impacts li {
+  display: grid; grid-template-columns: 2rem 1fr; gap: 12px; align-items: start;
+  font-family: var(--font-body); font-size: 1.05rem; color: var(--cream); line-height: 1.65;
+}
+.impacts li span.n {
+  font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700;
+  color: var(--red-bright); letter-spacing: 0.1em; padding-top: 3px;
+}
+
+/* ─────────────────────────────────────────
+   HERO
+   ───────────────────────────────────────── */
+.section--hero {
+  min-height: 100vh; display: flex; flex-direction: column;
+  justify-content: flex-end; padding-top: 0; padding-bottom: 72px; overflow: hidden;
+}
+.hero-river-bg { position: absolute; inset: 0; pointer-events: none; }
+.hero-eyebrow {
+  font-family: var(--font-mono); font-size: 0.6rem;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--red-bright); margin-bottom: 24px;
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8.5vw, 7.5rem);
+  font-weight: 900; line-height: 0.96;
+  letter-spacing: -0.03em; color: var(--cream); margin-bottom: 18px;
+}
+.hero-sub {
+  font-family: var(--font-display); font-size: clamp(0.95rem, 1.8vw, 1.3rem);
+  font-style: italic; color: var(--cream-dim); margin-bottom: 44px; max-width: 520px;
+}
+.hero-divider { width: 100%; height: 1px; background: rgba(176,44,34,0.3); margin-bottom: 36px; }
+.hero-stats { display: flex; gap: 52px; flex-wrap: wrap; margin-bottom: 56px; }
+.hero-stat-n { font-family: var(--font-mono); font-size: clamp(1.6rem, 3.5vw, 2.2rem); font-weight: 700; color: var(--red-bright); line-height: 1; }
+.hero-stat-l { font-family: var(--font-mono); font-size: 0.57rem; text-transform: uppercase; letter-spacing: 0.13em; color: var(--cream-dim); margin-top: 6px; }
+.scroll-cue { display: flex; align-items: center; gap: 13px; font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cream-dim); }
+.scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, transparent, var(--red)); animation: breathe 2.2s ease-in-out infinite; }
+@keyframes breathe { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+/* ─────────────────────────────────────────
+   MAP BACKGROUND SECTIONS
+   ───────────────────────────────────────── */
+.section--map { background: #0b0b08; }
+.section--map::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='350'%3E%3Cpath d='M0,175 Q75,148 150,175 Q225,202 300,172 Q375,144 500,175' fill='none' stroke='rgba(180,150,80,0.09)' stroke-width='1'/%3E%3Cpath d='M0,135 Q75,110 150,138 Q225,164 300,134 Q375,107 500,135' fill='none' stroke='rgba(180,150,80,0.065)' stroke-width='1'/%3E%3Cpath d='M0,215 Q75,190 150,215 Q225,240 300,213 Q375,187 500,215' fill='none' stroke='rgba(180,150,80,0.065)' stroke-width='1'/%3E%3C/svg%3E");
+}
+
+/* ─────────────────────────────────────────
+   MASSACRE SECTION
+   ───────────────────────────────────────── */
+.section--massacre { background: #0c0404; }
+.section--massacre::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 70% 60% at 40% 40%, rgba(140,22,14,0.18) 0%, transparent 70%); }
+
+/* ─────────────────────────────────────────
+   REDLINING — TWO-COLUMN MAP
+   ───────────────────────────────────────── */
+.section--redline { background: #090a0d; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; }
+.redline-layout { display: grid; grid-template-columns: 1fr 1fr; min-height: 80vh; }
+.redline-map-col {
+  position: sticky; top: 0; height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 60px 44px 60px 80px;
+  border-right: 1px solid rgba(255,255,255,0.04);
+}
+.redline-map-col svg { width: 100%; height: auto; }
+.redline-map-caption { font-family: var(--font-mono); font-size: 0.57rem; color: var(--cream-dim); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 14px; }
+.redline-text-col { padding: 96px 72px 96px 64px; }
+.holc-legend { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 32px; }
+.holc-item { display: flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cream-dim); }
+.holc-sw { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+
+/* HOLC zone fade-in animation */
+.holc-zone { opacity: 0; transition: opacity 0.9s ease; }
+.holc-zone.zone-in { opacity: 1; }
+
+/* ─────────────────────────────────────────
+   1968 SECTION
+   ───────────────────────────────────────── */
+.section--1968 { background: #090909; }
+.iam-display {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 10vw, 9.5rem);
+  font-weight: 900; line-height: 0.95;
+  letter-spacing: -0.03em; color: var(--cream); margin-bottom: 64px;
+}
+.iam-display .red-word { color: var(--red-bright); display: block; }
+
+/* ─────────────────────────────────────────
+   TYRE NICHOLS
+   ───────────────────────────────────────── */
+.section--tyre { background: #060607; padding-top: 150px; padding-bottom: 150px; }
+.tyre-name { font-family: var(--font-display); font-size: clamp(2.4rem, 5.5vw, 5rem); font-weight: 700; line-height: 1; color: var(--cream); margin-bottom: 6px; }
+.tyre-dates { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.22em; color: var(--cream-dim); margin-bottom: 48px; }
+
+/* ─────────────────────────────────────────
+   TURNAROUND
+   ───────────────────────────────────────── */
+.section--turn { background: #080a08; }
+.section--turn::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(30,70,35,0.1) 0%, transparent 70%); }
+.turn-big { font-family: var(--font-mono); font-size: clamp(3.5rem, 9vw, 8rem); font-weight: 700; color: var(--green-hope); line-height: 1; letter-spacing: -0.04em; margin-bottom: 6px; }
+.turn-label { font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--green-hope); opacity: 0.6; margin-bottom: 48px; }
+
+/* Chart draw animation */
+.chart-red-path {
+  fill: none; stroke: var(--red-bright); stroke-width: 1.75;
+  stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 530; stroke-dashoffset: 530;
+  transition: stroke-dashoffset 2.6s cubic-bezier(0.4,0,0.2,1);
+}
+.chart-green-path {
+  fill: none; stroke: var(--green-hope); stroke-width: 2.25;
+  stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 145; stroke-dashoffset: 145;
+  transition: stroke-dashoffset 1.3s cubic-bezier(0.4,0,0.2,1) 2.7s;
+}
+.chart-dots { opacity: 0; transition: opacity 0.6s ease 2.5s; }
+.chart-wrap.chart-animated .chart-red-path { stroke-dashoffset: 0; }
+.chart-wrap.chart-animated .chart-green-path { stroke-dashoffset: 0; }
+.chart-wrap.chart-animated .chart-dots { opacity: 1; }
+.chart-label { font-family: var(--font-mono); font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--cream-dim); margin-bottom: 14px; }
+
+/* ─────────────────────────────────────────
+   CONCLUSION & OVERLAY MAP
+   ───────────────────────────────────────── */
+.section--conclusion { background: var(--bg); padding-top: 150px; padding-bottom: 150px; }
+.conclusion-thesis {
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 3.2vw, 2.5rem);
+  font-weight: 700; line-height: 1.3; color: var(--cream);
+  margin-bottom: 52px; max-width: 660px;
+}
+.conclusion-thesis .accent { color: var(--red-bright); font-style: italic; }
+
+.overlay-map-wrap { margin: 64px 0; }
+.overlay-map-title {
+  font-family: var(--font-mono); font-size: 0.62rem;
+  text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--cream-dim); margin-bottom: 6px;
+}
+.overlay-map-sub {
+  font-family: var(--font-display); font-style: italic;
+  font-size: clamp(1rem, 1.8vw, 1.3rem); color: var(--cream-dim);
+  margin-bottom: 20px;
+}
+
+/* ─────────────────────────────────────────
+   FOOTER
+   ───────────────────────────────────────── */
+.site-footer { padding: 64px var(--pad-h); border-top: 1px solid rgba(255,255,255,0.045); }
+.footer-inner { max-width: var(--content-max); margin: 0 auto; }
+.footer-badge { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--red-bright); margin-bottom: 9px; }
+.footer-title { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--cream); margin-bottom: 5px; }
+.footer-byline { font-family: var(--font-mono); font-size: 0.6rem; color: var(--cream-dim); letter-spacing: 0.1em; }
+
+/* ─────────────────────────────────────────
+   REVEAL
+   ───────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal.in { opacity: 1; transform: none; }
+.d1 { transition-delay: 0.1s; }
+.d2 { transition-delay: 0.22s; }
+.d3 { transition-delay: 0.38s; }
+.d4 { transition-delay: 0.55s; }
+
+/* ─────────────────────────────────────────
+   MOBILE — 768px
+   ───────────────────────────────────────── */
+@media (max-width: 900px) {
+  .redline-layout { grid-template-columns: 1fr; }
+  .redline-map-col { position: static; height: auto; padding: 56px 40px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .redline-text-col { padding: 56px 40px; }
+}
+
+@media (max-width: 768px) {
+  :root { --thread-w: 40px; --pad-section: 72px; --pad-h: 28px; }
+  .ch-ghost { display: none; }
+  .thread-knot::after { display: none; }
+  .hero-stats { gap: 28px; }
+  .stats { gap: 28px; }
+  .pull { font-size: clamp(1.1rem, 3.8vw, 1.5rem); padding-left: 18px; margin: 36px 0; }
+  .iam-display { font-size: clamp(3rem, 9vw, 6rem); }
+  .redline-map-col, .redline-text-col { padding: 44px 24px; }
+  .section--tyre { padding-top: 96px; padding-bottom: 96px; }
+  .section--conclusion { padding-top: 96px; padding-bottom: 96px; }
+  .data-table { font-size: 0.68rem; }
+  .data-table td, .data-table th { padding-right: 10px; }
+}
+
+@media (max-width: 480px) {
+  :root { --thread-w: 28px; --pad-section: 56px; --pad-h: 20px; }
+  .thread-knot { width: 5px; height: 5px; }
+  .thread-knot.lit { width: 7px; height: 7px; }
+  .hero-title { font-size: clamp(2.4rem, 9vw, 4rem); }
+  .ch-title { font-size: clamp(1.7rem, 5.5vw, 2.5rem); }
+  .turn-big { font-size: clamp(3rem, 10vw, 5rem); }
+  .stats { flex-direction: column; gap: 20px; }
+  .hero-stats { flex-direction: column; gap: 20px; }
+  .prose { font-size: 1rem; }
+  .impacts li { font-size: 0.95rem; }
+}
+
+@media (max-width: 380px) {
+  :root { --thread-w: 22px; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="topo-layer" aria-hidden="true"></div>
+
+<!-- THREAD RAIL -->
+<div class="thread-rail" id="threadRail" aria-hidden="true">
+  <div class="thread-track"></div>
+  <div class="thread-fill" id="threadFill"></div>
+</div>
+
+<main>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════════════ -->
+<section class="section section--hero" id="sec-hero">
+  <svg class="hero-river-bg" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M0,0 L115,0 Q155,55 128,138 Q102,220 142,302 Q180,382 148,462 Q118,540 152,620 Q185,700 155,782 Q136,840 142,900 L0,900Z" fill="rgba(14,22,38,0.72)"/>
+    <path d="M128,0 Q162,66 132,152 Q105,236 148,318 Q188,398 155,478 Q124,556 158,636 Q190,714 158,794 Q140,850 146,900" fill="none" stroke="rgba(60,90,140,0.28)" stroke-width="2"/>
+    <path d="M 128,200 Q 300,182 500,196 Q 700,210 900,186 Q 1100,164 1400,192" fill="none" stroke="rgba(180,150,80,0.04)" stroke-width="1"/>
+    <path d="M 145,350 Q 320,330 520,347 Q 720,364 920,337 Q 1120,312 1400,342" fill="none" stroke="rgba(180,150,80,0.04)" stroke-width="1"/>
+    <path d="M 150,500 Q 350,477 560,497 Q 760,516 960,488 Q 1160,462 1400,490" fill="none" stroke="rgba(180,150,80,0.032)" stroke-width="1"/>
+  </svg>
+  <div class="section-inner">
+    <div class="hero-eyebrow reveal">An I Knot Report &nbsp;·&nbsp; By Rashad F &nbsp;·&nbsp; 2026</div>
+    <h1 class="hero-title reveal d1">How Memphis<br>Became Memphis</h1>
+    <p class="hero-sub reveal d2">A Historical Report on the Roots of Urban Violence</p>
+    <div class="hero-divider reveal d3"></div>
+    <div class="hero-stats reveal d3">
+      <div class="hero-stat"><div class="hero-stat-n">397</div><div class="hero-stat-l">Homicides in 2023</div></div>
+      <div class="hero-stat"><div class="hero-stat-n">287</div><div class="hero-stat-l">Years of accumulated cause</div></div>
+      <div class="hero-stat"><div class="hero-stat-n">−54%</div><div class="hero-stat-l">Homicides by 2025</div></div>
+    </div>
+    <div class="scroll-cue reveal d4"><div class="scroll-line"></div>Trace the thread</div>
+  </div>
+</section>
+
+<!-- ══ INTRODUCTION ══════════════════════════════════════════════════════ -->
+<section class="section" id="sec-intro" data-chapter="Introduction">
+  <div class="section-inner">
+    <div class="ch-ghost">I</div>
+    <div class="ch-meta reveal"><span class="ch-num">Introduction</span><span class="ch-era">Memphis, 2023</span></div>
+    <h2 class="ch-title reveal d1">This Did Not<br>Happen Overnight</h2>
+    <div class="prose reveal d2">
+      <p>Memphis, Tennessee has, for much of the last forty years, ranked among the most violent large cities in America. In 2023 the city recorded 397 homicides — a modern record and, per capita, one of the worst years any American city of its size has experienced in recent memory. Carjackings became so frequent and so brazen they made national news weekly. The Department of Justice opened a pattern-and-practice investigation into the Memphis Police Department. National Guard troops were eventually deployed.</p>
+      <p>Your question is the right one. This did not happen overnight.</p>
+      <p>The violence we see in Memphis in our lifetimes is the accumulated consequence of more than two hundred years of economic, racial, political, and public-policy decisions. Some of those decisions were made by slaveholders. Some were made by Congress. Some were made by federal housing administrators drawing colored lines on maps in 1935. Some were made by factory owners moving their plants overseas in the 1980s. Some were made by local politicians in the 1990s pursuing "tough on crime" policies that broke up the very families whose stability is the strongest predictor of low crime.</p>
+      <p>And many were made by no single person at all. They are the emergent result of a city built, from its founding, on extraction: the extraction of labor, wealth, and opportunity from its Black majority for the benefit of a mostly white minority.</p>
+    </div>
+    <blockquote class="pull reveal d3">"Violence is a symptom. The disease runs deep."</blockquote>
+    <div class="prose reveal d4">
+      <p>This report traces that chain of cause and effect from before Memphis's 1819 founding all the way to the present. It will insist, throughout, on a simple claim: that you cannot understand why a 19-year-old on the corner of Lamar and Willett picked up a gun in 2022 without understanding why his great-great-grandmother was denied a mortgage in 1938, why her son lost his Firestone job in 1983, and why his son spent seven years in state prison for a crime that carries a fine in most states now.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CHICKASAW BLUFF ════════════════════════════════════════════════════ -->
+<section class="section section--map" id="sec-chickasaw" data-chapter="Chickasaw Bluff">
+  <div class="section-inner">
+    <div class="ch-ghost">I</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapter I</span><span class="ch-era">1541 — 1819</span></div>
+    <h2 class="ch-title reveal d1">Before Memphis:<br>The Chickasaw Bluff</h2>
+    <div class="prose reveal d2">
+      <p>The fourth Chickasaw Bluff, the geological formation on which downtown Memphis now sits, was not empty land waiting to be settled. It had been continuously inhabited for roughly 10,000 years. By about 800 CE, the Mississippian culture had established a chain of towns stretching roughly 40 miles along this stretch of the Mississippi River. By the time Europeans arrived, the dominant Native nation was the Chickasaw — who controlled the bluffs through a network of villages, hunting grounds, and trade routes.</p>
+      <p>Spanish conquistador Hernando de Soto crossed the Mississippi near Memphis in 1541. His encounter with the Chickasaws ended badly for him. The Chickasaws burned his camp, destroyed much of his equipment, and drove him out. He died the following year without returning.</p>
+      <p>In 1739, Jean-Baptiste Le Moyne de Bienville led an army of 1,200 Frenchmen — joined by roughly 2,400 Black and Indigenous auxiliary troops — to the fourth Chickasaw Bluff with the explicit goal of eradicating the Chickasaw nation. They built Fort Assumption on August 15, 1739. The campaign was a disaster. The Chickasaws held the field. By March 1740 the French withdrew in defeat. The fourth Chickasaw Bluff was a site of attempted ethnic cleansing before it was a city.</p>
+      <p>The moment of dispossession came in the Chickasaw Cession of 1818 — negotiated by Andrew Jackson under heavy pressure and significant bribery of Chickasaw leaders. A year later, Jackson, along with his partners John Overton and James Winchester, laid out the town of Memphis on bluffs they had personally bought on speculation. The city was named after the ancient capital of Egypt — a gesture of grandiosity that had no organic connection to the place they were naming.</p>
+    </div>
+    <blockquote class="pull reveal d3">"From its first day, Memphis was a site of dispossession repurposed as a commercial opportunity for a small group of well-connected white men. That basic pattern would define almost everything that followed."</blockquote>
+  </div>
+</section>
+
+<!-- ══ SLAVE TRADE ════════════════════════════════════════════════════════ -->
+<section class="section" id="sec-slave" data-chapter="The Slave Trade">
+  <div class="section-inner">
+    <div class="ch-ghost">II</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapters II – III</span><span class="ch-era">1819 — 1865</span></div>
+    <h2 class="ch-title reveal d1">A City Built on<br>the Slave Trade</h2>
+    <div class="stats reveal d2">
+      <div class="stat"><div class="stat-n">35,000</div><div class="stat-l">Cotton bales through Memphis by 1840 — up from 1,000 in 1830</div></div>
+      <div class="stat"><div class="stat-n">3,800</div><div class="stat-l">Human beings trafficked through Forrest's jail alone, 1854–1860</div></div>
+    </div>
+    <div class="prose reveal d3">
+      <p>In 1854, the Tennessee legislature repealed its ban on the interstate importation of enslaved people for sale. Almost overnight, Memphis was transformed into one of the largest slave markets in the world. By 1857, it sat alongside Washington, Richmond, Charleston, and New Orleans as a central hub of the American interstate slave trade.</p>
+      <p>Most of the Memphis slave trade was concentrated on Adams Avenue — a street that connected the river steamboat landing to the Memphis and Charleston Railroad. Slave dealers could receive human beings off steamboats, pen them on Adams, and either sell them in Memphis or ship them by rail deeper into the Delta.</p>
+      <p>The most infamous Memphis slave trader was Nathan Bedford Forrest, whose pen stood at 87 Adams Street — literally across the alley from Calvary Episcopal Church. In January 1860, his three-story slave pen literally collapsed under the weight of the people inside it. Two enslaved people were killed and four injured. Bills of sale for $400,000 worth of human "property" — about $14 million in 2025 dollars — were salvaged from the wreckage.</p>
+      <p>Forrest would go on to serve as a Confederate lieutenant general, commit what historians overwhelmingly consider a war crime at the Fort Pillow massacre of Black Union soldiers, and become one of the early leaders of the Ku Klux Klan.</p>
+      <p>The Memphis slave market placed a premium on young enslaved women, both as breeders and as sexual objects for purchasers. This dimension of the trade — systematic, commercialized sexual exploitation — is a founding trauma of Black Memphis that is often elided in textbook histories.</p>
+    </div>
+    <div class="rule reveal"></div>
+    <div class="prose reveal">
+      <p>When slavery ended in 1865, Memphis's institutions — its banks, its newspapers, its churches, its police force, its political elite, its physical downtown — did not disappear. They adapted. The essential logic that underwrote them — that a white propertied class would extract wealth from a Black laboring class by violence if necessary — persisted in one form or another for another 100 years.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MEMPHIS MASSACRE ═══════════════════════════════════════════════════ -->
+<section class="section section--massacre" id="sec-massacre" data-chapter="Memphis Massacre 1866">
+  <div class="section-inner">
+    <div class="ch-ghost" style="color:rgba(255,60,40,0.04)">III</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapter V</span><span class="ch-era">May 1–3, 1866</span></div>
+    <h2 class="ch-title reveal d1">The Memphis Massacre</h2>
+    <div class="prose reveal d2">
+      <p>Not a riot. Not a clash. <em>A massacre.</em></p>
+      <p>When the Civil War ended, roughly 20,000 formerly enslaved people were living in or around Memphis, most crowded into South Memphis near Fort Pickering. Irish immigrant police officers were placed in daily authority over freedpeople seeking work and housing. White planters wanted freedpeople driven back to plantations. And newly freed people — especially Union veterans stationed at Fort Pickering — refused to accept second-class citizenship after having fought and won a war.</p>
+      <p>On May 1, 1866, a confrontation on South Street escalated. What followed was three days of organized racial terror. The Memphis police force itself participated. City Recorder John Creighton gave a speech explicitly calling on white crowds to arm and kill the Black people and drive them from the city.</p>
+    </div>
+    <table class="data-table reveal d3" aria-label="Memphis Massacre casualty record">
+      <thead><tr><th>Category</th><th>Total</th></tr></thead>
+      <tbody>
+        <tr><td>Black people killed</td><td class="n">46</td></tr>
+        <tr><td>White people killed (both accidents)</td><td class="n">2</td></tr>
+        <tr><td>Black people wounded</td><td class="n">75+</td></tr>
+        <tr><td>Black women raped (documented)</td><td class="n">5+</td></tr>
+        <tr><td>Black people robbed</td><td class="n">100+</td></tr>
+        <tr><td>Homes burned</td><td class="n">91</td></tr>
+        <tr><td>Black schools destroyed — all in the city</td><td class="n">8</td></tr>
+        <tr><td>Black churches destroyed</td><td class="n">4</td></tr>
+        <tr><td>Federal prosecutions of perpetrators</td><td class="z">0</td></tr>
+      </tbody>
+    </table>
+    <div class="prose reveal">
+      <p>Five Black women testified before Congress about sexual violence committed against them by white mobs and police officers — among the first African American women to ever testify before Congress about sexual assault. Frances Thompson, a Black seamstress and washerwoman, described seven men forcing their way into her home, demanding dinner, then raping her and her 16-year-old housemate Lucy Smith at gunpoint.</p>
+      <p>Recent scholarship has established that Frances Thompson was a transgender woman — the first known trans woman to testify before the United States Congress. She was targeted, outed, and persecuted for her gender identity a decade later by the same white-supremacist press that wanted to discredit her 1866 testimony.</p>
+    </div>
+    <blockquote class="pull reveal">"Not a single person was ever prosecuted for the Memphis Massacre. Not for the murders. Not for the rapes. Not for the arson. This was the pattern that would define Memphis for a century."</blockquote>
+    <div class="prose reveal">
+      <p>The congressional report helped move Congress to pass the Fourteenth Amendment, guaranteeing birthright citizenship, equal protection, and due process. But the perpetrators walked free. The Reconstruction Acts followed in 1867 — and were ultimately abandoned by the Compromise of 1877. Within a generation, almost every right African Americans had won was rolled back. The Fourteenth Amendment became, in practice, a dead letter for 90 years.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ YELLOW FEVER ═══════════════════════════════════════════════════════ -->
+<section class="section section--map" id="sec-fever" data-chapter="Yellow Fever">
+  <div class="section-inner">
+    <div class="ch-ghost">IV</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapter VI</span><span class="ch-era">1873 — 1879</span></div>
+    <h2 class="ch-title reveal d1">Yellow Fever and the<br>Reshaping of the City</h2>
+    <div class="stats reveal d2">
+      <div class="stat"><div class="stat-n">5,150</div><div class="stat-l">Memphians killed in the 1878 epidemic</div></div>
+      <div class="stat"><div class="stat-n">200</div><div class="stat-l">People dying per day at the peak</div></div>
+    </div>
+    <div class="prose reveal d3">
+      <p>In the summer of 1878, yellow fever exploded in New Orleans and began moving up the Mississippi River. Memphis tried to quarantine itself, but a steamboat worker slipped past the checkpoints. By August 13, Kate Bionda — a riverfront restaurant owner — was the first confirmed case. Panic followed.</p>
+      <p>Within two weeks, roughly 25,000 of the city's 50,000 residents fled — overwhelmingly the middle-class and wealthy, overwhelmingly white. Of the approximately 20,000 who remained, an estimated 17,000 contracted the fever. Half of the city's physicians died. Funeral bells rang almost continuously.</p>
+      <p>The death rate divided sharply by race. Of roughly 6,000 whites who remained, nearly all contracted the fever and 4,204 died — a catastrophic mortality rate. Of roughly 14,000 Black residents who remained, only 946 died — likely the result of genetic resistance inherited from generations of ancestral exposure to yellow fever in West Africa.</p>
+      <p>The epidemic fundamentally remade Memphis in five major ways:</p>
+    </div>
+    <ul class="impacts reveal d3">
+      <li><span class="n">01</span><span>The tax base collapsed. In 1879 the Tennessee legislature revoked the city's charter. Memphis operated as a state-run "taxing district" for 14 years, unable to levy taxes or issue bonds independently.</span></li>
+      <li><span class="n">02</span><span>The population mix shifted permanently. The German and Irish Catholic communities, which had been economically rising, were devastated and never fully recovered. The old antebellum planter class lost most of its remaining survivors.</span></li>
+      <li><span class="n">03</span><span>Black Memphians briefly gained political power. Because so many white residents had died or fled, Black men were briefly placed on the police force as patrolmen — almost unheard of in the Reconstruction-era South. Black officers would remain on the Memphis force until 1895, when the door slammed shut again.</span></li>
+      <li><span class="n">04</span><span>A new, harder white elite took control. The business-class survivors were, by and large, more rigidly white-supremacist and more politically conservative than the pre-fever generation. They would reimpose Jim Crow in the 1890s with extraordinary severity.</span></li>
+      <li><span class="n">05</span><span>Public health infrastructure was finally built. Memphis built a sewer system, cleaned up its open privies, and tapped the artesian aquifer that still provides its drinking water today. These reforms saved countless future lives — built by and for a city that had been demographically and economically gutted.</span></li>
+    </ul>
+    <blockquote class="pull reveal">After yellow fever, Memphis was "twentieth-century in externals, Confederate at heart."<cite>— Gerald Capers, 1938</cite></blockquote>
+  </div>
+</section>
+
+<!-- ══ JIM CROW & IDA B. WELLS ════════════════════════════════════════════ -->
+<section class="section" id="sec-jimcrow" data-chapter="Jim Crow & Ida B. Wells">
+  <div class="section-inner">
+    <div class="ch-ghost">V</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapter VII</span><span class="ch-era">1880s — 1920s</span></div>
+    <h2 class="ch-title reveal d1">Jim Crow, Ida B. Wells,<br>and the Lynching Regime</h2>
+    <div class="prose reveal d2">
+      <p>By the late 1880s, white Memphians were systematically reimposing a racial caste system. Black men were pushed off juries, disenfranchised through poll taxes and literacy tests, and squeezed out of skilled trades. And the enforcement mechanism — the thing that ensured no Black Memphian could forget his or her place — was lynching.</p>
+      <p>On the night of March 9, 1892, three Black Memphis businessmen — Thomas Moss, Calvin McDowell, and William Stewart — were dragged from the Shelby County jail and lynched by a white mob. Their crime was competing successfully with a white-owned grocery store across the street. Thomas Moss was the close friend and godfather of the child of a young Memphis journalist named Ida B. Wells.</p>
+      <p>Wells had been born into slavery in Holly Springs, Mississippi in 1862. The People's Grocery lynching radicalized her. She investigated lynchings across the South — personally traveling to sites, interviewing witnesses, reading coroners' reports. Her pamphlet <em>Southern Horrors: Lynch Law in All Its Phases</em> (1892) destroyed the prevailing white narrative that lynching was a response to Black men raping white women. She documented, with data, that most victims had not been accused of rape at all.</p>
+      <p>On May 27, 1892, while Wells was in New York, a white mob destroyed the offices of the Free Speech. She was warned that if she returned to Memphis, she would be killed. She never returned. She continued her anti-lynching crusade from Chicago, where she helped found the NAACP in 1909.</p>
+      <p>In May 1917, Ell Persons — a Black woodcutter — was seized from law enforcement custody by a mob of more than 5,000 white Memphians. He was doused with gasoline and burned alive. Some brought their children. Food was sold. After he was dead, his body was dismembered; his head was reportedly thrown from a car onto Beale Street. No one was prosecuted.</p>
+    </div>
+    <blockquote class="pull reveal d3">"Black Memphis's cultural richness and Black Memphis's brutal economic and physical conditions are not two different stories. They are the same story."</blockquote>
+    <div class="prose reveal">
+      <p>Against this backdrop of terror, Black Memphians built an astonishing culture of their own. Beale Street became by the 1910s one of the most important Black commercial and cultural districts in the country. W.C. Handy composed "Memphis Blues" (1912) and "Beale Street Blues" (1916) in and about the neighborhood. The blues as a musical genre was substantially invented by Black Memphians as a direct response to the conditions under which they lived. The music industry that would later produce Stax Records, Al Green, Isaac Hayes, and Three 6 Mafia was built by people who were simultaneously being lynched, disenfranchised, redlined, and underpaid.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ THE CRUMP MACHINE ══════════════════════════════════════════════════ -->
+<section class="section section--map" id="sec-crump" data-chapter="The Crump Machine">
+  <div class="section-inner">
+    <div class="ch-ghost">VI</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapter VIII</span><span class="ch-era">1909 — 1954</span></div>
+    <h2 class="ch-title reveal d1">The Crump Machine</h2>
+    <div class="prose reveal d2">
+      <p>From roughly 1909 until his death in 1954, Memphis was effectively ruled by one man: Edward Hull "Boss" Crump — one of the most powerful urban political machines in American history, on par with Tammany Hall in New York or the Daley machine in Chicago.</p>
+      <p>The Crump machine was unusual among Southern political machines in that it actively courted Black votes. Crump knew that Memphis's Black population was large enough that whoever controlled Black turnout controlled city elections. He made deals with Black political brokers, paid Black voters' poll taxes in exchange for their votes, and ensured Black ballots were counted — at least when they were voting for his candidates.</p>
+      <p>But this was not a civil rights machine. Crump enforced segregation rigidly. Black Memphians had access to limited patronage and protection from the random violence of the white underclass — but they had no real political power, no meaningful economic power, no integrated schools, no integrated public accommodations, and no seat at any table that mattered.</p>
+    </div>
+    <blockquote class="pull reveal d3">"Our advantage is the Negro — and there is no race problem at all."<cite>— Memphis Business Men's Club, 1900</cite></blockquote>
+    <div class="prose reveal">
+      <p>The machine was also aggressively hostile to labor unions. Memphis in the 1930s and 1940s was notorious nationally as one of the most anti-union cities in America. Union organizers — Black or white — were beaten, jailed, or driven out. Crump's police force broke strikes with brutal efficiency.</p>
+      <p>This mattered enormously. While industrial cities in the North were building mass labor movements that lifted millions of working-class families into the middle class, Memphis systematically suppressed the organized working class. The ideology behind this was old: low Black wages were Memphis's competitive edge in attracting capital. That logic — that Memphis's prosperity depended on cheap, unorganized, disproportionately Black labor — was institutionalized under Crump and has never really been dislodged.</p>
+    </div>
+    <div class="stats reveal">
+      <div class="stat"><div class="stat-n gold">$22B</div><div class="stat-l">Estimated size of the regional economic gap caused by the Black-to-white wage disparity, 2017</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ THE GREAT MIGRATION ════════════════════════════════════════════════ -->
+<section class="section" id="sec-migration" data-chapter="The Great Migration">
+  <div class="section-inner">
+    <div class="ch-ghost">VII</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapter IX</span><span class="ch-era">1910 — 1960</span></div>
+    <h2 class="ch-title reveal d1">The Great Migration and<br>the Building of Black Memphis</h2>
+    <div class="stats reveal d2">
+      <div class="stat"><div class="stat-n">6M</div><div class="stat-l">African Americans who left the rural South between 1910 and 1970</div></div>
+    </div>
+    <div class="prose reveal d3">
+      <p>Between roughly 1910 and 1970, some six million African Americans left the rural South in what historians call the Great Migration. Memphis was a famous way station in this migration. Many Black Mississippians and Arkansans stopped in Memphis — some permanently, some for a generation — before moving on to Chicago, Detroit, or St. Louis.</p>
+      <p>But many stayed. The Black population of Memphis grew steadily throughout the first half of the 20th century. Orange Mound, founded in the 1890s as one of the first neighborhoods in America built by and for African Americans, became a thriving community. Black neighborhoods like South Memphis, North Memphis, and Binghamton developed into vibrant, densely populated communities with their own schools, churches, newspapers, hospitals, businesses, and culture.</p>
+      <p>The contradiction of this era is important to name clearly. Black Memphis was, by the 1940s and 1950s, larger and more institutionally developed than it had ever been. And yet it was almost entirely excluded from the economic mainstream of the city. Most Black Memphians worked as domestic servants, laborers, or cotton handlers — Memphis was the world's largest cotton market into the 1950s, built on the backs of Black workers cycling in and out of the city from the surrounding Delta.</p>
+      <p>A small Black middle class of teachers, ministers, morticians, and doctors served the community but remained walled off from broader economic opportunity by segregation. They could build institutions — churches, mutual aid societies, insurance companies, newspapers — but they could not access federal mortgage programs, join most unions, or compete on equal terms for industrial employment. The wall was legal, administrative, and enforced by violence.</p>
+    </div>
+    <blockquote class="pull reveal d4">"Black Memphis had built a world inside the walls. What it could never do — under Jim Crow, under Crump, under the full weight of the American state — was break through them."</blockquote>
+  </div>
+</section>
+
+<!-- ══ REDLINING — STICKY MAP ════════════════════════════════════════════ -->
+<section class="section section--redline" id="sec-redline" data-chapter="Redlining 1935">
+  <div class="redline-layout">
+
+    <!-- STICKY MAP -->
+    <div class="redline-map-col reveal">
+      <svg id="holcMap" viewBox="0 0 520 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stylized HOLC redlining map of Memphis, 1935">
+        <rect width="520" height="420" fill="#0c0d11"/>
+        <!-- Grid -->
+        <g stroke="rgba(200,180,100,0.04)" stroke-width="0.5">
+          <line x1="0" y1="60" x2="520" y2="60"/><line x1="0" y1="120" x2="520" y2="120"/>
+          <line x1="0" y1="180" x2="520" y2="180"/><line x1="0" y1="240" x2="520" y2="240"/>
+          <line x1="0" y1="300" x2="520" y2="300"/><line x1="0" y1="360" x2="520" y2="360"/>
+          <line x1="80" y1="0" x2="80" y2="420"/><line x1="160" y1="0" x2="160" y2="420"/>
+          <line x1="240" y1="0" x2="240" y2="420"/><line x1="320" y1="0" x2="320" y2="420"/>
+          <line x1="400" y1="0" x2="400" y2="420"/><line x1="480" y1="0" x2="480" y2="420"/>
+        </g>
+        <!-- River -->
+        <path d="M0,0 L68,0 Q88,30 72,80 Q58,128 76,178 Q92,226 74,276 Q58,322 76,372 Q88,400 72,420 L0,420Z" fill="rgba(18,28,52,0.85)"/>
+        <path d="M72,0 Q90,38 74,92 Q60,142 78,194 Q94,244 76,294 Q60,340 78,388 Q90,410 74,420" fill="none" stroke="rgba(70,110,170,0.42)" stroke-width="1.5"/>
+
+        <!-- D Zones — appear first -->
+        <polygon id="zone-north" class="holc-zone" points="74,8 268,8 268,148 158,158 96,152 76,124 70,72" fill="rgba(152,28,18,0.38)" stroke="#981c12" stroke-width="0.75"/>
+        <polygon id="zone-binghamton" class="holc-zone" points="268,8 388,8 388,118 330,142 268,148" fill="rgba(152,28,18,0.32)" stroke="#981c12" stroke-width="0.75"/>
+        <polygon id="zone-south" class="holc-zone" points="76,124 76,244 226,244 226,158 158,158 96,152" fill="rgba(172,140,36,0.35)" stroke="#ac8c24" stroke-width="0.75"/>
+        <polygon id="zone-orange" class="holc-zone" points="76,244 78,302 76,358 74,420 208,420 248,384 264,336 264,244" fill="rgba(152,28,18,0.42)" stroke="#981c12" stroke-width="0.75"/>
+
+        <!-- B/C Zones — appear after -->
+        <polygon id="zone-midtown" class="holc-zone" points="226,158 330,142 388,118 408,196 374,244 226,244" fill="rgba(28,64,136,0.32)" stroke="#1c4088" stroke-width="0.75"/>
+        <polygon id="zone-east" class="holc-zone" points="388,8 520,8 520,208 468,218 408,196 388,118" fill="rgba(28,64,136,0.36)" stroke="#1c4088" stroke-width="0.75"/>
+        <polygon id="zone-fareast" class="holc-zone" points="468,218 520,208 520,330 498,350 448,328 424,284 408,252 408,196 468,218" fill="rgba(30,90,44,0.36)" stroke="#1e5a2c" stroke-width="0.75"/>
+        <polygon id="zone-orangemound" class="holc-zone" points="264,244 264,336 286,384 368,384 408,344 408,252 374,244" fill="rgba(152,28,18,0.36)" stroke="#981c12" stroke-width="0.75"/>
+        <polygon id="zone-south2" class="holc-zone" points="208,420 248,384 286,384 368,384 408,344 498,350 520,330 520,420" fill="rgba(172,140,36,0.22)" stroke="#ac8c24" stroke-width="0.75"/>
+
+        <!-- Labels -->
+        <g font-family="'Space Mono', monospace" font-size="7.5" fill="rgba(210,192,160,0.55)">
+          <text x="155" y="54">NORTH MEMPHIS</text>
+          <text x="274" y="38">BINGHAMTON</text>
+          <text x="106" y="192">DOWNTOWN</text>
+          <text x="248" y="192">MIDTOWN</text>
+          <text x="427" y="58">EAST</text><text x="425" y="70">MEMPHIS</text>
+          <text x="98" y="344">SOUTH</text><text x="98" y="356">MEMPHIS</text>
+          <text x="282" y="304">ORANGE</text><text x="282" y="316">MOUND</text>
+        </g>
+        <!-- Grade letters -->
+        <g font-family="'Space Mono', monospace" font-weight="700" font-size="13" text-anchor="middle">
+          <text x="155" y="92" fill="rgba(200,60,50,0.7)">D</text>
+          <text x="318" y="70" fill="rgba(200,60,50,0.65)">D</text>
+          <text x="112" y="330" fill="rgba(200,60,50,0.7)">D</text>
+          <text x="316" y="318" fill="rgba(200,60,50,0.65)">D</text>
+          <text x="155" y="208" fill="rgba(200,165,50,0.65)">C</text>
+          <text x="294" y="202" fill="rgba(60,100,200,0.65)">B</text>
+          <text x="442" y="92" fill="rgba(60,100,200,0.65)">B</text>
+          <text x="472" y="282" fill="rgba(50,160,80,0.65)">A</text>
+        </g>
+        <!-- River label -->
+        <text transform="translate(36,250) rotate(-90)" font-family="'Space Mono', monospace" font-size="7" fill="rgba(70,110,170,0.5)" text-anchor="middle">MISSISSIPPI RIVER</text>
+        <!-- Stamp -->
+        <text x="390" y="409" font-family="'Space Mono', monospace" font-size="7.5" fill="rgba(210,192,160,0.28)">HOLC 1935</text>
+        <text x="366" y="419" font-family="'Space Mono', monospace" font-size="7.5" fill="rgba(210,192,160,0.18)">MEMPHIS, TENNESSEE</text>
+        <!-- Compass -->
+        <g transform="translate(494,26)">
+          <line x1="0" y1="-9" x2="0" y2="9" stroke="rgba(210,192,160,0.3)" stroke-width="0.75"/>
+          <line x1="-9" y1="0" x2="9" y2="0" stroke="rgba(210,192,160,0.3)" stroke-width="0.75"/>
+          <polygon points="0,-9 -2.5,-4.5 2.5,-4.5" fill="rgba(210,192,160,0.4)"/>
+          <text x="0" y="-12" font-family="'Space Mono', monospace" font-size="5.5" fill="rgba(210,192,160,0.4)" text-anchor="middle">N</text>
+        </g>
+        <!-- Border -->
+        <rect x="2" y="2" width="516" height="416" fill="none" stroke="rgba(200,180,100,0.14)" stroke-width="1"/>
+        <rect x="5" y="5" width="510" height="410" fill="none" stroke="rgba(200,180,100,0.07)" stroke-width="0.5"/>
+      </svg>
+      <p class="redline-map-caption">Stylized HOLC neighborhood grade classifications — Memphis, Tennessee, 1935</p>
+    </div>
+
+    <!-- TEXT -->
+    <div class="redline-text-col">
+      <div class="ch-meta reveal"><span class="ch-num">Chapter X</span><span class="ch-era">1935 — 1968</span></div>
+      <h2 class="ch-title reveal d1">Redlining and the<br>Engineering of the<br>Racial Wealth Gap</h2>
+      <div class="holc-legend reveal d2">
+        <div class="holc-item"><div class="holc-sw" style="background:rgba(30,90,44,0.85);border:1px solid #1e5a2c"></div>A — Best</div>
+        <div class="holc-item"><div class="holc-sw" style="background:rgba(28,64,136,0.85);border:1px solid #1c4088"></div>B — Desirable</div>
+        <div class="holc-item"><div class="holc-sw" style="background:rgba(172,140,36,0.85);border:1px solid #ac8c24"></div>C — Declining</div>
+        <div class="holc-item"><div class="holc-sw" style="background:rgba(152,28,18,0.85);border:1px solid #981c12"></div>D — Hazardous</div>
+      </div>
+      <div class="prose reveal d2">
+        <p>To understand Memphis violence today, you have to understand what the federal government did to Memphis's neighborhoods in the 1930s.</p>
+        <p>Starting in 1935, the federal Home Owners' Loan Corporation drew color-coded maps of every American city with a population over 40,000. HOLC graded each neighborhood on a four-tier scale. Grade D neighborhoods were labeled "hazardous," with no loans recommended. The grades were drawn by local white real estate agents, bankers, and insurers. Every predominantly Black neighborhood in Memphis was graded Red.</p>
+        <p>The Federal Housing Administration used maps like these to decide which mortgages it would insure. Private banks used them to decide where to lend. The practical effect was that federally subsidized, low-interest, 30-year mortgages flowed almost exclusively to white neighborhoods in eastern Memphis — and almost not at all to Black neighborhoods in North and South Memphis.</p>
+      </div>
+      <blockquote class="pull reveal">"This was not a byproduct of market forces. It was federal policy."</blockquote>
+      <div class="prose reveal">
+        <p>For the next 30 years and more, the basic mechanism of American middle-class wealth-building — homeownership with federally subsidized mortgages, the house appreciating in value over decades — was made available to white Memphians and systematically denied to Black Memphians. The neighborhoods that had been redlined suffered cascading consequences: banks stopped lending, homes deteriorated, insurance companies stopped writing policies, businesses left, grocery stores closed, schools lost tax-base funding.</p>
+        <p>Across the United States, the average Black family today holds roughly one-tenth the wealth of the average white family. This gap is not primarily about differences in income or work ethic. It is primarily about differences in home equity and inherited wealth — and those differences are primarily the result of redlining, passed down across three generations.</p>
+      </div>
+      <div class="stats reveal">
+        <div class="stat"><div class="stat-n gold">42%</div><div class="stat-l">Black homeownership in Memphis</div></div>
+        <div class="stat"><div class="stat-n gold">72%</div><div class="stat-l">White homeownership in Memphis</div></div>
+      </div>
+      <div class="prose reveal">
+        <p>A child growing up in a low-income family in North Memphis has less than <strong>1% chance</strong> of reaching the top income quintile as an adult. A child growing up one mile away in Midtown has roughly a 16% chance. That gap was engineered, deliberately, by federal policy nearly 90 years ago — and it has never been repaired.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 1968 ════════════════════════════════════════════════════════════════ -->
+<section class="section section--1968" id="sec-1968" data-chapter="1968 — I AM A MAN">
+  <div class="section-inner">
+    <div class="ch-ghost">VIII</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapter XI</span><span class="ch-era">February — April 1968</span></div>
+    <div class="iam-display reveal d1"><span>I AM</span><span class="red-word">A MAN.</span></div>
+    <div class="prose reveal d2">
+      <p>On February 1, 1968, two Black Memphis sanitation workers — Echol Cole, 36, and Robert Walker, 29 — took shelter from a downpour inside the barrel of their garbage truck. Under the city's rules, Black workers who stopped during rain received no pay, while white supervisors went home with full pay. And Black sanitation workers were not permitted to take shelter in the public buildings where white workers could wait.</p>
+      <p>The truck's compactor malfunctioned. Cole and Walker were crushed to death. Two other men had died the same way in 1964. The city had been asked repeatedly to take the defective trucks out of service. It had refused.</p>
+      <p>On February 12, 1968, 1,300 Black Memphis sanitation workers went on strike. Their demands: recognition of their union (AFSCME Local 1733), a living wage, safer equipment, and the basic dignity of being treated as human beings. Their slogan, printed on placards they carried through downtown Memphis, became one of the defining images of 20th-century America: <strong>I AM A MAN.</strong></p>
+      <p>Mayor Henry Loeb refused to negotiate. On February 23, Memphis police attacked a nonviolent march with tear gas and mace. James Lawson — King's close friend — asked Dr. Martin Luther King Jr. to come to Memphis.</p>
+    </div>
+    <blockquote class="pull reveal d3">"On April 3, King returned. In a storm, at Mason Temple, he delivered the 'Mountaintop' speech. He said he might not get to the Promised Land with them, but that they would get there as a people."</blockquote>
+    <div class="prose reveal">
+      <p>The next evening, April 4, 1968, King was standing on the balcony of the Lorraine Motel on Mulberry Street when a single rifle shot struck him. He died about an hour later.</p>
+      <p>On April 8, Coretta Scott King led a silent march of 42,000 people through downtown Memphis. On April 16, the city recognized AFSCME Local 1733 and granted the workers' wage demands. The workers had won.</p>
+      <p>But something else had ended too. King's assassination shattered the civil rights coalition at the national level. The pace of white flight accelerated dramatically. The idea that Memphis could ever be an integrated, mutually thriving city took a blow it has arguably never recovered from.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DEINDUSTRIALIZATION ════════════════════════════════════════════════ -->
+<section class="section section--map" id="sec-deindust" data-chapter="Deindustrialization">
+  <div class="section-inner">
+    <div class="ch-ghost">IX</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapter XII</span><span class="ch-era">1970s — 1990s</span></div>
+    <h2 class="ch-title reveal d1">Deindustrialization, White<br>Flight, and the Hollowing<br>of Memphis</h2>
+    <div class="prose reveal d2">
+      <p>The two decades after King's assassination were, for Memphis's working class, an economic disaster.</p>
+      <p>Between roughly 1970 and the early 2000s, Memphis lost most of the industrial base that had been the backbone of its 20th-century economy. Firestone Tire and Rubber Company — one of the city's largest employers of Black workers, a unionized operation that had been a path into the Black middle class — closed its Memphis plant in 1983. International Harvester closed. The Memphis Furniture Manufacturing Company closed. Television assembly left. Food processing plants consolidated and departed.</p>
+      <p>These were not marginal jobs. They were unionized industrial jobs that paid $15 to $25 an hour in 1970s dollars, with benefits, pensions, and the prospect of a middle-class life for the worker's family. They were the exact kind of jobs Dr. King had been fighting to expand and protect for Black workers.</p>
+      <p>When they disappeared, they were replaced largely by low-wage, non-union service jobs: warehousing, hospitality, fast food, and — as Memphis branded itself "America's Distribution Center" — the FedEx logistics sector. FedEx today is the city's largest employer. But entry-level logistics work pays a fraction of what a Firestone job paid in 1975 adjusted for inflation, and has far weaker union protection.</p>
+    </div>
+    <div class="rule reveal"></div>
+    <div class="prose reveal">
+      <p>Beginning in the 1950s and accelerating sharply after 1968, middle-class white Memphians left the city in enormous numbers — to Germantown, Collierville, Bartlett, and across the state line into DeSoto County, Mississippi. This classic "fiscal wall" migration let white families access Memphis jobs while paying taxes to a different jurisdiction and sending children to different schools.</p>
+      <p>By the 2000s, Memphis City Schools was roughly 85% Black and chronically underfunded. Recent state assessments show only about 22% of MSCS students proficient in English, and 15% in math. In late 2025, a state forensic audit of MSCS revealed "widespread operational failures."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MASS INCARCERATION ══════════════════════════════════════════════════ -->
+<section class="section" id="sec-incarceration" data-chapter="Mass Incarceration">
+  <div class="section-inner">
+    <div class="ch-ghost">X</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapter XIII</span><span class="ch-era">1980s — 2000s</span></div>
+    <h2 class="ch-title reveal d1">The Crack Era and<br>Mass Incarceration</h2>
+    <div class="prose reveal d2">
+      <p>Into the vacuum created by deindustrialization, white flight, redlining, and a broken school system came the national crack cocaine epidemic of the mid-1980s. The drug economy offered one of the few remaining pathways to significant income for young men in neighborhoods stripped of legitimate employment. Street gangs expanded rapidly in the late 1980s and 1990s.</p>
+      <p>Memphis homicide rates spiked sharply. The city crossed the 200-homicide threshold multiple times in the 1990s. The national response — bipartisan and overwhelming — was mass incarceration. The 1986 Anti-Drug Abuse Act imposed brutally unequal sentencing for crack versus powder cocaine: a 100-to-1 ratio that took until 2010 to reduce to 18-to-1, and has still not been fully equalized.</p>
+      <p>In Memphis and across Tennessee, a generation of young Black men — many arrested for nonviolent drug offenses, many first-time offenders — went to prison for years or decades.</p>
+    </div>
+    <blockquote class="pull reveal d3">"Mass incarceration did not solve the problem. It relocated the problem in time — stripping a generation of men out of their families and returning them, years later, damaged, bitter, and unemployable."</blockquote>
+    <div class="prose reveal">
+      <p>Men returned from prison unable to get jobs, unable to rent apartments, unable to vote, disconnected from their children. Children grew up without fathers — a strong predictor of later poverty and incarceration. Many of the young men arrested for violent crime in the 2010s and 2020s grew up without fathers because those fathers were in prison for nonviolent offenses from the 1990s. The 2023 Tennessee recidivism rate was 24.5% for Memphis returning citizens.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ GUN ECONOMY ════════════════════════════════════════════════════════ -->
+<section class="section section--map" id="sec-guns" data-chapter="The Gun Economy">
+  <div class="section-inner">
+    <div class="ch-ghost">XI</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapter XIV</span><span class="ch-era">2000s — Present</span></div>
+    <h2 class="ch-title reveal d1">The Gun Economy</h2>
+    <div class="stats reveal d2">
+      <div class="stat"><div class="stat-n">2×</div><div class="stat-l">Memphis gun theft rate vs. Detroit — the next-highest city studied</div></div>
+    </div>
+    <div class="prose reveal d3">
+      <p>One reason Memphis violence is so lethal is that it takes place in the most gun-saturated large city in the United States. In 2021, Tennessee eliminated its permit requirement for carrying a handgun. Guns circulate freely through both legal and illegal markets. Memphis is also the endpoint of gun trafficking pipelines running up Interstate 55 from southern Mississippi and Louisiana, and in from Arkansas via I-40.</p>
+      <p>A study by the Council on Criminal Justice found that between 2018 and 2022, Memphis had by far the highest rate of gun theft among the 16 large American cities studied — nearly twice the rate of Detroit. A huge share of these thefts were guns stolen from unlocked cars. Tennessee's "constitutional carry" law contributed to a dramatic increase in guns left in vehicles; when those cars were stolen, the guns entered the illegal market.</p>
+      <p>The Memphis violent crime pattern of the early 2020s was driven in substantial part by this feedback loop: stolen cars contained guns, stolen guns were used in more carjackings, those carjackings targeted more cars. The cycle became self-sustaining.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTEMPORARY CONDITIONS ═══════════════════════════════════════════ -->
+<section class="section" id="sec-contemporary" data-chapter="Contemporary Crisis">
+  <div class="section-inner">
+    <div class="ch-ghost">XII</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapters XV – XVI</span><span class="ch-era">2010s — 2023</span></div>
+    <h2 class="ch-title reveal d1">Contemporary Conditions</h2>
+    <div class="stats reveal d2">
+      <div class="stat"><div class="stat-n">1 in 4</div><div class="stat-l">Memphians below the federal poverty line</div></div>
+      <div class="stat"><div class="stat-n">36%</div><div class="stat-l">Child poverty rate for Black children in Memphis</div></div>
+      <div class="stat"><div class="stat-n">$35k</div><div class="stat-l">Median household income gap — white vs. Black Memphis</div></div>
+    </div>
+    <div class="prose reveal d3">
+      <p>By any sociological measure, Memphis in the late 2010s and early 2020s had become the most concentrated site of urban disadvantage in America — poorer than Detroit, poorer than Baltimore, poorer than Cleveland, with worse educational outcomes and worse housing.</p>
+      <p>Memphis had a shortage of approximately 36,000 affordable housing units while simultaneously having between 13,000 and 15,000 vacant houses — a paradox of scarcity and abandonment produced by redlining and disinvestment. Only about 22% of students were proficient or above in English, and 15% in math.</p>
+      <p>The COVID-19 pandemic shattered whatever fragile equilibrium remained. Unemployment spiked. Schools closed. Mental health services collapsed. Homicides climbed from roughly 250 in 2019 to 397 in 2023. Carjackings became so common they occurred dozens of times per day. The city made national news not for its music, not for its barbecue, not for FedEx or the Grizzlies — but for a seemingly endless parade of shootings, chases, and killings.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TYRE NICHOLS ════════════════════════════════════════════════════════ -->
+<section class="section section--tyre" id="sec-tyre" data-chapter="Tyre Nichols">
+  <div class="section-inner">
+    <div class="ch-meta reveal"><span class="ch-num">Chapter XVI</span><span class="ch-era">January 2023</span></div>
+    <div class="tyre-name reveal d1">Tyre Nichols</div>
+    <div class="tyre-dates reveal d2">June 5, 1993 — January 10, 2023</div>
+    <div class="prose reveal d3">
+      <p>On the evening of January 7, 2023, Tyre Nichols — a 29-year-old Black man — was pulled over by Memphis police for what was described as "reckless driving." He fled on foot. Five officers, members of the SCORPION Unit, caught him a few hundred feet from his mother's house.</p>
+      <p>Over the next several minutes, on video, they beat him: punching, kicking, using a police baton, pepper-spraying him. He called out for his mother. After the beating, the officers milled around, chatted, and laughed while Nichols lay slumped against a car in clear medical distress.</p>
+      <p>He died three days later.</p>
+    </div>
+    <div class="rule reveal" style="background:var(--cream-dim);width:20px;margin-top:44px;"></div>
+    <div class="prose reveal">
+      <p>All five officers were fired. All five were Black. All five were charged with second-degree murder and indicted on federal civil rights charges. The SCORPION Unit was disbanded.</p>
+      <p>In December 2024, the DOJ released a 73-page report finding that MPD used excessive force, conducted unlawful stops and searches, discriminated against Black people in enforcement, and that its "saturation" policing strategy had led to so many unconstitutional arrests that prosecutors testified many cases were "laughed out of court." In 2025, the DOJ dropped the investigation and retracted its findings. Whether MPD will be meaningfully reformed remains open.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TURNAROUND ══════════════════════════════════════════════════════════ -->
+<section class="section section--turn" id="sec-turnaround" data-chapter="2025 Turnaround">
+  <div class="section-inner">
+    <div class="ch-ghost">XIII</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapter XVII</span><span class="ch-era">2025 — 2026</span></div>
+    <h2 class="ch-title reveal d1">The 2025–2026 Turnaround</h2>
+    <div class="turn-big reveal d2">184</div>
+    <div class="turn-label reveal d3">Homicides in 2025 — down 54% from the 2023 peak of 397</div>
+
+    <!-- ANIMATED CHART -->
+    <div class="chart-wrap reveal d3" id="homicideChart">
+      <div class="chart-label">Memphis Annual Homicides, 2015–2025</div>
+      <svg viewBox="0 0 700 265" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Line chart of Memphis homicides 2015 to 2025">
+        <rect width="700" height="265" fill="rgba(255,255,255,0.018)" rx="4"/>
+        <!-- Grid lines -->
+        <g stroke="rgba(255,255,255,0.055)" stroke-width="0.5" stroke-dasharray="3,4">
+          <line x1="60" y1="40" x2="680" y2="40"/>
+          <line x1="60" y1="85" x2="680" y2="85"/>
+          <line x1="60" y1="130" x2="680" y2="130"/>
+          <line x1="60" y1="175" x2="680" y2="175"/>
+          <line x1="60" y1="220" x2="680" y2="220"/>
+        </g>
+        <!-- Y labels -->
+        <g font-family="'Space Mono', monospace" font-size="7.5" fill="rgba(200,180,150,0.35)" text-anchor="end">
+          <text x="52" y="44">400</text>
+          <text x="52" y="89">320</text>
+          <text x="52" y="134">240</text>
+          <text x="52" y="179">160</text>
+          <text x="52" y="224">80</text>
+        </g>
+        <!-- X labels -->
+        <g font-family="'Space Mono', monospace" font-size="7.5" fill="rgba(200,180,150,0.38)" text-anchor="middle">
+          <text x="80" y="242">2015</text><text x="138" y="242">2016</text><text x="196" y="242">2017</text>
+          <text x="254" y="242">2018</text><text x="312" y="242">2019</text><text x="370" y="242">2020</text>
+          <text x="428" y="242">2021</text><text x="486" y="242">2022</text><text x="544" y="242">2023</text>
+          <text x="614" y="242">2024</text><text x="664" y="242">2025</text>
+        </g>
+
+        <!-- Red line: 2015–2023
+             Scale: y = 220 - (value/400)*180
+             178→140  228→117  254→106  254→106  252→107  304→83  346→64  347→64  397→41 -->
+        <path class="chart-red-path"
+          d="M 80,140 L 138,117 L 196,106 L 254,106 L 312,107 L 370,83 L 428,64 L 486,64 L 544,41"/>
+
+        <!-- Green line: 2023–2025  310→83  184→137 -->
+        <path class="chart-green-path"
+          d="M 544,41 L 614,83 L 664,137"/>
+
+        <!-- Data dots -->
+        <g class="chart-dots">
+          <g fill="var(--red)" stroke="var(--bg)" stroke-width="1.2">
+            <circle cx="80" cy="140" r="3"/><circle cx="138" cy="117" r="3"/>
+            <circle cx="196" cy="106" r="3"/><circle cx="254" cy="106" r="3"/>
+            <circle cx="312" cy="107" r="3"/><circle cx="370" cy="83" r="3"/>
+            <circle cx="428" cy="64" r="3"/><circle cx="486" cy="64" r="3"/>
+          </g>
+          <!-- Peak dot -->
+          <circle cx="544" cy="41" r="4.5" fill="var(--red-bright)" stroke="var(--bg)" stroke-width="1.2"/>
+          <text x="554" y="38" font-family="'Space Mono', monospace" font-size="8.5" fill="var(--red-bright)" font-weight="700">397</text>
+          <text x="554" y="50" font-family="'Space Mono', monospace" font-size="7" fill="rgba(204,55,40,0.6)">PEAK</text>
+          <!-- Green dots -->
+          <circle cx="614" cy="83" r="3" fill="var(--green-hope)" stroke="var(--bg)" stroke-width="1.2"/>
+          <circle cx="664" cy="137" r="4.5" fill="var(--green-hope)" stroke="var(--bg)" stroke-width="1.2"/>
+          <text x="644" y="131" font-family="'Space Mono', monospace" font-size="8.5" fill="var(--green-hope)" font-weight="700">184</text>
+        </g>
+
+        <!-- Legend -->
+        <line x1="60" y1="258" x2="80" y2="258" stroke="var(--red-bright)" stroke-width="1.5"/>
+        <text x="84" y="262" font-family="'Space Mono', monospace" font-size="7" fill="rgba(200,180,150,0.45)">Rising</text>
+        <line x1="130" y1="258" x2="150" y2="258" stroke="var(--green-hope)" stroke-width="2"/>
+        <text x="154" y="262" font-family="'Space Mono', monospace" font-size="7" fill="rgba(200,180,150,0.45)">Turnaround</text>
+      </svg>
+    </div>
+
+    <div class="prose reveal">
+      <p>The numbers are unambiguous. Homicides fell to 184 in 2025 — the first time Memphis recorded fewer than 200 since 2019. Part I crimes dropped 27% year-over-year. Carjackings fell 48%. Shootings fell 38%, meaning roughly 500 fewer Memphians were injured by gunfire in 2025 than in 2024. Early 2026 data shows the trend continuing — homicides through March 23, 2026 were 11, down 65% from the same point in 2025.</p>
+      <p>Three competing claims explain the turnaround: targeted local enforcement under Chief CJ Davis; a federal surge through the Trump administration's Memphis Safe Task Force and National Guard deployments; and a national post-COVID normalization visible across most large American cities. The truth is probably all three, in proportions that cannot yet be precisely determined.</p>
+      <p>What is not contested: hundreds of Memphis families who would have been at a funeral or a hospital in 2024 were spared that in 2025.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONCLUSION ═════════════════════════════════════════════════════════ -->
+<section class="section section--conclusion" id="sec-conclusion" data-chapter="Conclusion">
+  <div class="section-inner">
+    <div class="ch-ghost" style="font-size:clamp(4rem,11vw,11rem);">∞</div>
+    <div class="ch-meta reveal"><span class="ch-num">Chapter XVIII</span><span class="ch-era">1739 — 2026</span></div>
+    <h2 class="ch-title reveal d1">The Thread That<br>Connects It All</h2>
+    <div class="conclusion-thesis reveal d2">
+      If you trace the line from 1739 to 2026,<br><span class="accent">a coherent story emerges.</span>
+    </div>
+    <div class="prose reveal d3">
+      <p>Memphis was founded on a bluff where a European empire had tried to exterminate the Chickasaw Nation in 1739. Eighty years later, the Chickasaws were dispossessed by Andrew Jackson, who then personally laid out the city on land he had bought on speculation. Its economy was constructed from the ground up around the buying and selling of human beings and the extraction of unpaid labor from them.</p>
+      <p>When slavery ended, the city's white establishment fought to preserve the racial hierarchy through the 1866 Memphis Massacre, through the lynching of Thomas Moss and Calvin McDowell and William Stewart, through the public burning of Ell Persons, through a century of Jim Crow, and through the suppression of every labor movement that tried to challenge the low-wage regime.</p>
+      <p>When legal segregation began to crack, capital and policy found new ways to preserve the hierarchy. Redlining maps drawn in 1935 determined which families would build wealth and which would not — and the maps followed race with mathematical precision. Urban renewal demolished Black neighborhoods. White flight created fiscal walls. The industrial jobs that had finally started to lift Black Memphians into the middle class were gutted in the 1980s, replaced by a low-wage logistics economy that explicitly reproduced the old doctrine of cheap, disposable labor.</p>
+      <p>Into that vacuum came concentrated poverty, a flood of guns, a drug economy, and a mass incarceration response that broke up families without fixing any of the underlying conditions. Into that vacuum came the SCORPION Unit and the beating of Tyre Nichols. Into that vacuum came 2023, and 397 homicides.</p>
+    </div>
+
+    <!-- OVERLAY MAP -->
+    <div class="overlay-map-wrap reveal">
+      <div class="overlay-map-title">The Thesis — Visualized</div>
+      <div class="overlay-map-sub">1935 HOLC redline boundaries · 2023 violent crime concentration</div>
+      <svg id="overlayMap" viewBox="0 0 520 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Map showing 1935 HOLC redline boundaries overlaid with 2023 crime concentration dots. The two patterns align precisely.">
+        <rect width="520" height="420" fill="#0a0b0e"/>
+        <!-- Grid faint -->
+        <g stroke="rgba(200,180,100,0.03)" stroke-width="0.5">
+          <line x1="0" y1="60" x2="520" y2="60"/><line x1="0" y1="120" x2="520" y2="120"/>
+          <line x1="0" y1="180" x2="520" y2="180"/><line x1="0" y1="240" x2="520" y2="240"/>
+          <line x1="0" y1="300" x2="520" y2="300"/><line x1="0" y1="360" x2="520" y2="360"/>
+          <line x1="80" y1="0" x2="80" y2="420"/><line x1="160" y1="0" x2="160" y2="420"/>
+          <line x1="240" y1="0" x2="240" y2="420"/><line x1="320" y1="0" x2="320" y2="420"/>
+          <line x1="400" y1="0" x2="400" y2="420"/><line x1="480" y1="0" x2="480" y2="420"/>
+        </g>
+        <!-- River -->
+        <path d="M0,0 L68,0 Q88,30 72,80 Q58,128 76,178 Q92,226 74,276 Q58,322 76,372 Q88,400 72,420 L0,420Z" fill="rgba(18,28,52,0.7)"/>
+        <path d="M72,0 Q90,38 74,92 Q60,142 78,194 Q94,244 76,294 Q60,340 78,388 Q90,410 74,420" fill="none" stroke="rgba(70,110,170,0.3)" stroke-width="1.5"/>
+
+        <!-- 1935 HOLC ZONE OUTLINES (ghost boundaries, no fill — just lines) -->
+        <g fill="none" stroke-width="1" opacity="0.4">
+          <polygon points="74,8 268,8 268,148 158,158 96,152 76,124 70,72" stroke="#981c12" fill="rgba(152,28,18,0.08)"/>
+          <polygon points="268,8 388,8 388,118 330,142 268,148" stroke="#981c12" fill="rgba(152,28,18,0.08)"/>
+          <polygon points="76,124 76,244 226,244 226,158 158,158 96,152" stroke="#ac8c24" fill="rgba(172,140,36,0.06)"/>
+          <polygon points="226,158 330,142 388,118 408,196 374,244 226,244" stroke="#1c4088" fill="rgba(28,64,136,0.06)"/>
+          <polygon points="388,8 520,8 520,208 468,218 408,196 388,118" stroke="#1c4088" fill="rgba(28,64,136,0.06)"/>
+          <polygon points="468,218 520,208 520,330 498,350 448,328 424,284 408,252 408,196 468,218" stroke="#1e5a2c" fill="rgba(30,90,44,0.06)"/>
+          <polygon points="76,244 78,302 76,358 74,420 208,420 248,384 264,336 264,244" stroke="#981c12" fill="rgba(152,28,18,0.08)"/>
+          <polygon points="264,244 264,336 286,384 368,384 408,344 408,252 374,244" stroke="#981c12" fill="rgba(152,28,18,0.08)"/>
+          <polygon points="208,420 248,384 286,384 368,384 408,344 498,350 520,330 520,420" stroke="#ac8c24" fill="rgba(172,140,36,0.04)"/>
+        </g>
+
+        <!-- 2023 CRIME DOTS (injected by JS into #overlayDots group) -->
+        <g id="overlayDots"></g>
+
+        <!-- Annotation labels -->
+        <g font-family="'Space Mono', monospace">
+          <text x="156" y="20" font-size="7" fill="rgba(152,28,18,0.7)" text-anchor="middle">— 1935 GRADE D BOUNDARY</text>
+          <text x="156" y="30" font-size="6.5" fill="rgba(204,55,40,0.5)" text-anchor="middle">2023 CRIME CONCENTRATION →</text>
+        </g>
+
+        <!-- Callout: "88 years apart. Same geography." -->
+        <text x="260" y="410" font-family="'Space Mono', monospace" font-size="7" fill="rgba(210,192,160,0.38)" text-anchor="middle">88 YEARS APART. THE SAME GEOGRAPHY.</text>
+
+        <!-- River label -->
+        <text transform="translate(36,250) rotate(-90)" font-family="'Space Mono', monospace" font-size="7" fill="rgba(70,110,170,0.4)" text-anchor="middle">MISSISSIPPI RIVER</text>
+
+        <!-- Border -->
+        <rect x="2" y="2" width="516" height="416" fill="none" stroke="rgba(200,180,100,0.12)" stroke-width="1"/>
+      </svg>
+    </div>
+
+    <blockquote class="pull reveal">"Memphis is violent because Memphis has, for most of its existence, been an extraction economy."<cite>— How Memphis Became Memphis, 2026</cite></blockquote>
+
+    <div class="prose reveal">
+      <p>The 2025 to 2026 data proves change is possible. Homicides did fall by 54% in two years. The harder news is that whether those gains last — and whether the next generation of Memphis children grows up in a city that has finally broken the pattern, or a city that is merely between crime waves — will depend on whether Memphis, and the state of Tennessee, and the federal government, finally address the 200-year-old conditions underneath the crime numbers.</p>
+      <p>None of the structural conditions described in this report have been fixed. The poverty is still there. The wage gap is still there. The housing shortage is still there. The school outcomes are still there. The Black-to-white wealth gap traceable to the 1935 redlining maps is still there. The concentrated disadvantage in North and South Memphis is still there.</p>
+      <p>Enforcement can suppress the symptoms. It cannot cure the disease. Memphis has the rare chance, right now, to pair enforcement with investment — and pair both with a serious reckoning with its history. Whether it will, remains to be seen.</p>
+    </div>
+
+    <div class="stats reveal" style="margin-top:64px;">
+      <div class="stat"><div class="stat-n" style="color:var(--red-bright);">1739</div><div class="stat-l">Fort Assumption — extraction begins</div></div>
+      <div class="stat"><div class="stat-n" style="color:var(--red-bright);">2023</div><div class="stat-l">397 homicides — modern record</div></div>
+      <div class="stat"><div class="stat-n green">2025</div><div class="stat-l">184 homicides — first step toward repair</div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-badge">I Knot Report</div>
+    <div class="footer-title">How Memphis Became Memphis</div>
+    <div class="footer-byline">A Historical Report on the Roots of Urban Violence &nbsp;·&nbsp; By Rashad F &nbsp;·&nbsp; 2026</div>
+    <div style="margin-top:24px;font-family:var(--font-mono);font-size:0.57rem;color:var(--cream-dim);line-height:1.9;">
+      Sources include: U.S. House Report No. 101 (1866) · HOLC Mapping Inequality Project ·
+      Council on Criminal Justice · U.S. DOJ Memphis Report (Dec. 2024) ·
+      Stanford King Institute · MLK50 / Justice Through Journalism ·
+      High Ground News · Fox 13 Memphis · Action News 5 · WMC Action News 5
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ─── THREAD PROGRESS ──────────────────────────────────────────── */
+function updateThread() {
+  const pct = Math.min(100, (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+  document.documentElement.style.setProperty('--thread-pct', pct + '%');
+}
+window.addEventListener('scroll', updateThread, { passive: true });
+updateThread();
+
+/* ─── BUILD THREAD KNOTS ──────────────────────────────────────── */
+function buildKnots() {
+  const sections = document.querySelectorAll('[data-chapter]');
+  const rail = document.getElementById('threadRail');
+  const totalH = document.documentElement.scrollHeight;
+  sections.forEach(sec => {
+    const knot = document.createElement('button');
+    knot.className = 'thread-knot';
+    knot.setAttribute('aria-label', 'Jump to: ' + sec.dataset.chapter);
+    knot.setAttribute('data-label', sec.dataset.chapter);
+    knot.style.top = ((sec.offsetTop / totalH) * 100) + '%';
+    knot.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    rail.appendChild(knot);
+  });
+}
+
+/* ─── ACTIVE KNOT ─────────────────────────────────────────────── */
+function trackActive() {
+  const sections = document.querySelectorAll('[data-chapter]');
+  const knots = document.querySelectorAll('.thread-knot');
+  const mid = window.scrollY + window.innerHeight * 0.38;
+  let active = 0;
+  sections.forEach((s, i) => { if (s.offsetTop <= mid) active = i; });
+  knots.forEach((k, i) => k.classList.toggle('lit', i <= active));
+}
+window.addEventListener('scroll', trackActive, { passive: true });
+
+/* ─── INTERSECTION OBSERVER — REVEAL ──────────────────────────── */
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); revealObs.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ─── HOLC MAP ZONE ANIMATION ─────────────────────────────────── */
+const ZONE_SEQUENCE = [
+  { id: 'zone-north',       delay: 0   },
+  { id: 'zone-south',       delay: 180 },
+  { id: 'zone-orange',      delay: 360 },
+  { id: 'zone-orangemound', delay: 540 },
+  { id: 'zone-binghamton',  delay: 720 },
+  { id: 'zone-midtown',     delay: 960 },
+  { id: 'zone-east',        delay: 1140 },
+  { id: 'zone-fareast',     delay: 1320 },
+  { id: 'zone-south2',      delay: 1500 },
+];
+
+const holcMap = document.getElementById('holcMap');
+if (holcMap) {
+  const mapObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        ZONE_SEQUENCE.forEach(z => {
+          const el = document.getElementById(z.id);
+          if (el) setTimeout(() => el.classList.add('zone-in'), z.delay);
+        });
+        mapObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.2 });
+  mapObs.observe(holcMap);
+}
+
+/* ─── CHART DRAW ANIMATION ────────────────────────────────────── */
+const chartWrap = document.getElementById('homicideChart');
+if (chartWrap) {
+  const chartObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('chart-animated');
+        chartObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  chartObs.observe(chartWrap);
+}
+
+/* ─── OVERLAY MAP — CRIME DOTS ────────────────────────────────── */
+const CRIME_DOTS = [
+  // North Memphis D zone
+  [95,45],[130,78],[165,38],[195,92],[225,58],[148,122],[178,143],[205,112],
+  [242,88],[118,96],[83,132],[252,42],[132,68],[172,152],[198,36],[93,62],
+  [142,108],[187,72],[232,118],[128,143],[162,92],[212,148],[243,133],[97,48],[168,57],
+  [145,30],[220,140],[105,115],[255,108],[80,85],
+  // South Memphis D zone
+  [92,272],[133,312],[162,282],[193,352],[222,293],[143,382],[172,322],[202,402],
+  [103,342],[242,313],[82,302],[152,262],[182,392],[112,372],[202,264],[232,368],
+  [122,294],[167,342],[197,308],[243,383],[87,383],[148,415],[178,274],[207,338],[228,412],
+  [95,258],[165,415],[190,275],[250,350],[105,400],
+  // Orange Mound D zone
+  [282,272],[312,292],[342,262],[372,313],[293,332],[323,358],[362,282],[387,343],
+  [303,303],[353,382],[283,352],[402,262],[332,323],[277,287],[347,372],
+  [392,297],[308,373],[362,252],[287,313],[332,297],
+  // Binghamton D zone
+  [282,32],[313,62],[352,42],[377,93],[298,113],[333,82],[367,133],[287,67],
+  [323,123],[362,57],[378,107],[303,47],[342,143],[272,87],[357,27],
+  // A few in C zones (sparse)
+  [145,185],[185,200],[120,170],[200,175],[240,210],[160,225],[108,200]
+];
+
+function buildCrimeDots() {
+  const group = document.getElementById('overlayDots');
+  if (!group) return;
+  CRIME_DOTS.forEach(([x, y]) => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', x);
+    c.setAttribute('cy', y);
+    c.setAttribute('r', (1.8 + Math.random() * 1.4).toFixed(1));
+    c.setAttribute('fill', `rgba(176,44,34,${(0.45 + Math.random() * 0.45).toFixed(2)})`);
+    group.appendChild(c);
+  });
+}
+
+/* ─── INIT ────────────────────────────────────────────────────── */
+window.addEventListener('load', () => {
+  buildKnots();
+  trackActive();
+  buildCrimeDots();
+});
+</script>
+</body>
+</html>
